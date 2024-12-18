@@ -1,0 +1,39 @@
+networks:
+  go-network:
+    driver: bridge
+
+services:
+  api:
+    build: 
+      context: ./
+      dockerfile: Dockerfile
+    container_name: go-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    volumes:
+      - .:/usr/src/app
+    environment:
+      DB_HOST: db
+      DB_USER: postgres
+      DB_PASSWORD: secret
+      DB_NAME: contacts_db
+      DB_PORT: 5432
+
+    networks:
+      - go-network
+
+  db:
+    image: 'postgres:latest'
+    container_name: postgres-db
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=postgres
+    networks:
+      - go-network
